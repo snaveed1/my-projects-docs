@@ -1,0 +1,65 @@
+Parameters:
+  CIDR:
+    Type: String
+    Description: Enter CIDR value for Public Subnet
+  CIDR2:
+    Type: String
+    Description: Enter CIDR value for Public Subnet 2
+
+Resources:
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !ImportValue vpc-VPCID
+      CidrBlock: !Ref CIDR
+      AvailabilityZone: "us-east-1a"
+      Tags:
+        - Key: Name
+          Value: PublicSubnet1
+
+  PublicSubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId:                                    #specify the default route table id 
+
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !ImportValue vpc-VPCID
+      CidrBlock: !Ref CIDR2
+      AvailabilityZone: "us-east-1a"
+      Tags:
+        - Key: Name
+          Value: PublicSubnet2
+
+  PublicRouteTable2:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !ImportValue vpc-VPCID
+      Tags:
+        - Key: Name
+          Value: PublicRouteTable2
+
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable2
+
+  MyInternetGateway:
+    Type: AWS::EC2::InternetGateway
+
+  AttachGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !ImportValue vpc-VPCID
+      InternetGatewayId: !Ref MyInternetGateway
+
+  InternetRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachGateway
+    Properties:
+      RouteTableId:                                         #specify the default route table id 
+      DestinationCidrBlock: "0.0.0.0/0"
+      GatewayId: !Ref MyInternetGateway

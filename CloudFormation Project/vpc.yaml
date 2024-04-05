@@ -1,0 +1,23 @@
+Outputs:
+  StackVPC:
+    Description: The ID of the VPC
+    Value: !Ref myVPC
+    Export:
+      Name: !Sub "${AWS::StackName}-VPCID"
+      
+Parameters: 
+  CIDR:
+    Type: String
+    Description: Enter CIDR value
+
+Resources:
+   myVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref CIDR
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
+      Tags:
+       - Key: Name
+         Value: VpcByCF
+
